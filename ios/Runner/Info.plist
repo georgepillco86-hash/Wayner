@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Permisos para App Store Connect (ITMS-90683) -->
+	<key>NSCameraUsageDescription</key>
+	<string>Esta aplicación requiere el uso de la cámara para la lectura y escaneo de códigos de barras de los productos.</string>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Esta aplicación utiliza la ubicación para la gestión de entregas y puntos de venta.</string>
+
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Esta aplicación requiere conexión Bluetooth para la integración con impresoras térmicas y dispositivos de impresión.</string>
 </dict>
 </plist>
