@@ -35,10 +35,14 @@ class _LectorCodigoScreenState extends State<LectorCodigoScreen> {
               valueListenable: _scannerController,
               builder: (context, state, child) {
                 switch (state.torchState) {
-                  case TorchState.off:
-                    return const Icon(Icons.flash_off, color: Colors.grey);
                   case TorchState.on:
                     return const Icon(Icons.flash_on, color: Colors.yellow);
+                  case TorchState.auto:
+                    return const Icon(Icons.flash_auto, color: Colors.yellow);
+                  case TorchState.off:
+                  case TorchState.unavailable:
+                  default:
+                    return const Icon(Icons.flash_off, color: Colors.grey);
                 }
               },
             ),
