@@ -1,27 +1,23 @@
-import 'package:ferrotienda_flutter_proyecto/features/pedidos/widgets/generar_pedido_proveedor_dialog.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 import 'core/storage/session_storage.dart';
 import 'features/auth/models/auth_user.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/services/biometric_auth_service.dart';
-import 'features/saldos/presentation/screens/product_search_screen.dart';
+import 'features/cronograma/presentation/screens/notificaciones_screen.dart';
+import 'features/favoritos/providers/favorites_provider.dart';
+import 'features/pedidos/screens/pedido_busqueda_screen.dart';
+import 'features/pedidos/widgets/generar_pedido_proveedor_dialog.dart';
 import 'features/saldos/presentation/screens/product_search_controller.dart';
+import 'features/saldos/presentation/screens/product_search_screen.dart';
 import 'features/scanner/screens/scanner_price_screen.dart';
 
-// 🔥 NUEVOS IMPORTS PARA LA REDIRECCIÓN DE NOTIFICACIONES 🔥
-import 'features/pedidos/screens/pedido_busqueda_screen.dart';
-import 'features/cronograma/presentation/screens/notificaciones_screen.dart';
-
-// 🔥 NUEVO IMPORT DEL PROVIDER DE FAVORITOS 🔥
-import 'package:ferrotienda_flutter_proyecto/features/favoritos/providers/favorites_provider.dart';
-
 // ==========================================================
-// 🔥 1. CREAMOS EL NAVEGADOR GLOBAL (Fuera de las clases) 🔥
+// 1. NAVEGADOR GLOBAL PARA NAVEGACIÓN DESDE NOTIFICACIONES
 // ==========================================================
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -29,51 +25,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // ==========================================================
-  // 🔥 2. INICIALIZACIÓN DE ONESIGNAL Y DEEP LINKING 🔥
+  // 2. VALIDACIONES LOCALES (Sin llamadas a SDKs nativos pesados)
   // ==========================================================
-  if (!kIsWeb) {
-    OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-    OneSignal.initialize("f4a9679d-f7e7-47bf-8ad4-c633fa0a439d");
-    OneSignal.Notifications.requestPermission(true);
-
-    OneSignal.Notifications.addClickListener((event) {
-      final data = event.notification.additionalData;
-
-      if (data != null) {
-        final String accion = data['accion'] ?? '';
-
-        // 1. Lógica antigua: Abrir el diálogo del pedido (Borradores/Admin)
-        if ((accion == 'APROBAR_PEDIDO' || accion == '') &&
-            data.containsKey('pedido_id')) {
-          final int pedidoId = data['pedido_id'];
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (_) => GenerarPedidoProveedorDialog(pedidoId: pedidoId),
-            ),
-          );
-        }
-        // 2. 🔥 NUEVA LÓGICA: Redirigir a hacer pedido con el proveedor cargado 🔥
-        else if (accion == 'HACER_PEDIDO' && data.containsKey('proveedor')) {
-          final String proveedor = data['proveedor'];
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (_) => PedidoBusquedaScreen(proveedorInicial: proveedor),
-            ),
-          );
-        }
-        // 3. 🔥 LÓGICA SECUNDARIA: Redirigir a la pantalla de Mis Alertas 🔥
-        else if (accion == 'VER_NOTIFICACIONES') {
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (_) => const NotificacionesScreen()),
-          );
-        }
-      }
-    });
-  }
-  // ==========================================================
-
-  await _requestInitialPermissions();
-
   bool isBiometricEnabled = await BiometricAuthService.isEnabled();
   AuthUser? user = await SessionStorage.getUser();
 
@@ -88,27 +41,74 @@ Future<void> main() async {
   }
 
   // ==========================================================
-  // 🔥 3. ETIQUETAMOS EL CELULAR CON EL NOMBRE DEL USUARIO 🔥
+  // 3. ARRANCAMOS LA INTERFAZ DE FLUTTER PRIMERO
   // ==========================================================
-  if (!kIsWeb && user != null) {
-    OneSignal.login(user.nombreUsuario);
-  }
-
   runApp(FerrotiendaApp(user: user, isBiometricEnabled: isBiometricEnabled));
+
+  // ==========================================================
+  // 4. INICIALIZACIÓN DIFERIDA DE SERVICIOS NATIVOS
+  // ==========================================================
+  if (!kIsWeb) {
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      await _initNativeServices(user);
+    });
+  }
 }
 
-Future<void> _requestInitialPermissions() async {
-  if (kIsWeb) {
-    debugPrint("Ejecutando en Web: Saltando petición de permisos nativos.");
-    return;
-  }
-
+// Extraemos la inicialización pesada para evitar el crash en iOS
+Future<void> _initNativeServices(AuthUser? user) async {
+  // Permisos iniciales del sistema
   await [
     Permission.camera,
     Permission.bluetoothConnect,
     Permission.bluetoothScan,
     Permission.location,
   ].request();
+
+  // Inicialización de OneSignal
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  OneSignal.initialize("f4a9679d-f7e7-47bf-8ad4-c633fa0a439d");
+  OneSignal.Notifications.requestPermission(true);
+
+  // Identificación del usuario en OneSignal para envíos segmentados
+  if (user != null) {
+    OneSignal.login(user.nombreUsuario);
+  }
+
+  // Manejo de Deep Links y clics en notificaciones
+  OneSignal.Notifications.addClickListener((event) {
+    final data = event.notification.additionalData;
+
+    if (data != null) {
+      final String accion = data['accion'] ?? '';
+
+      // Redirección 1: Diálogo de aprobación de pedido
+      if ((accion == 'APROBAR_PEDIDO' || accion == '') &&
+          data.containsKey('pedido_id')) {
+        final int pedidoId = data['pedido_id'];
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (_) => GenerarPedidoProveedorDialog(pedidoId: pedidoId),
+          ),
+        );
+      }
+      // Redirección 2: Hacer pedido cargando el proveedor específico
+      else if (accion == 'HACER_PEDIDO' && data.containsKey('proveedor')) {
+        final String proveedor = data['proveedor'];
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (_) => PedidoBusquedaScreen(proveedorInicial: proveedor),
+          ),
+        );
+      }
+      // Redirección 3: Pantalla de notificaciones / alertas
+      else if (accion == 'VER_NOTIFICACIONES') {
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => const NotificacionesScreen()),
+        );
+      }
+    }
+  });
 }
 
 class FerrotiendaApp extends StatefulWidget {
@@ -195,7 +195,6 @@ class _FerrotiendaAppState extends State<FerrotiendaApp>
 
   @override
   Widget build(BuildContext context) {
-    // 🔥 CORRECCIÓN: Usamos MultiProvider para soportar varios controladores globales 🔥
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(

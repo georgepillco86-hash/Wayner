@@ -56,6 +56,19 @@
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>Esta aplicación requiere conexión Bluetooth para la integración con impresoras térmicas y dispositivos de impresión.</string>
 
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>Esta aplicación requiere conexión Bluetooth para la integración con impresoras térmicas y dispositivos de impresión.</string>
+
+    <!-- Permiso OBLIGATORIO para Biometría (Face ID) -->
+    <key>NSFaceIDUsageDescription</key>
+    <string>Esta aplicación requiere acceso a Face ID para iniciar sesión de forma segura y rápida.</string>
+
+    <!-- Background Modes OBLIGATORIOS para OneSignal -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+    </array>
+
     <!-- Permiso para buscar e interactuar con el servidor local y las impresoras de red -->
     <key>NSLocalNetworkUsageDescription</key>
     <string>Esta aplicación requiere acceso a la red local para conectarse a la intranet corporativa y enviar tickets a las impresoras térmicas.</string>
