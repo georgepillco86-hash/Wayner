@@ -11,11 +11,11 @@ import 'package:provider/provider.dart';
 import '../../favoritos/providers/favorites_provider.dart';
 
 import '../services/pedidos_service.dart';
-import 'package0/ferrotienda_flutter_proyecto/features/mermas/data/services/merma_service.dart';
+import 'package:ferrotienda_flutter_proyecto/features/mermas/data/services/merma_service.dart';
 import 'package:ferrotienda_flutter_proyecto/features/mermas/presentation/screens/merma_screen.dart';
 import '../../../core/storage/session_storage.dart';
 import '../../saldos/presentation/widgets/kardex_flotante_dialog.dart';
-import '../../../screens/scanner/lector_codigo_screen.dart';
+import 'package:ferrotienda_flutter_proyecto/features/scanner/screens/lector_codigo_screen.dart';
 
 class GenerarPedidoConsolidadoDialog extends StatefulWidget {
   final String proveedor;
@@ -2532,17 +2532,15 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
       );
       return;
     }
-    Navigator.push(
+    final codigo = await Navigator.push<dynamic>(
       context,
-      MaterialPageRoute(
-        builder: (_) => LectorCodigoScreen(
-          onDetect: (codigo) {
-            _searchController.text = codigo;
-            _buscar();
-          },
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => const LectorCodigoScreen()),
     );
+
+    if (codigo != null && codigo is String && codigo.isNotEmpty) {
+      _searchController.text = codigo;
+      _buscar();
+    }
   }
 
   List<dynamic> get resultadosFiltrados {
@@ -3392,89 +3390,221 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final currentList = resultadosFiltrados;
+    final lista = resultadosFiltrados;
 
     return Container(
-      padding: EdgeInsets.only(bottom: bottomInset),
+      height: MediaQuery.of(context).size.height * 0.88,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      padding: EdgeInsets.only(
+        top: 12,
+        left: 16,
+        right: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      labelText: "Buscar producto...",
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.qr_code_scanner),
-                        onPressed: _escanearCodigo,
-                      ),
-                      border: const OutlineInputBorder(),
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Agregar Producto al Pedido",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: "Buscar por nombre o código...",
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              _buscar();
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    onSubmitted: (_) => _buscar(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  onSubmitted: (_) => _buscar(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton.filled(
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                const SizedBox(width: 8),
-                IconButton.filled(
-                  onPressed: _buscar,
-                  icon: const Icon(Icons.search),
+                icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
+                tooltip: "Escanear Código",
+                onPressed: _escanearCodigo,
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: _buscar,
+                child: const Text(
+                  "Buscar",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                DropdownButton<String>(
+                  value: claseSeleccionada,
+                  items: clasesDisponibles
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => claseSeleccionada = val);
+                      _buscar();
+                    }
+                  },
+                ),
+                const SizedBox(width: 12),
+                if (esAdmin && proveedores.isNotEmpty) ...[
+                  DropdownButton<String?>(
+                    hint: const Text("Proveedor"),
+                    value: proveedorSeleccionado,
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text("Todos los proveedores"),
+                      ),
+                      ...proveedores.map(
+                        (p) => DropdownMenuItem<String?>(
+                          value: p,
+                          child: Text(p, overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                    ],
+                    onChanged: (val) {
+                      setState(() => proveedorSeleccionado = val);
+                      _buscar();
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Row(
+                  children: [
+                    const Text("Profunda:", style: TextStyle(fontSize: 12)),
+                    Switch(
+                      value: busquedaProfunda,
+                      onChanged: (val) {
+                        setState(() => busquedaProfunda = val);
+                        _buscar();
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          const Divider(),
 
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: CircularProgressIndicator(),
-            ),
-
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(_error!, style: const TextStyle(color: Colors.red)),
-            ),
-
-          if (!_isLoading && currentList.isNotEmpty)
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: currentList.length,
-                itemBuilder: (context, index) {
-                  final prod = currentList[index];
-                  final nombre =
-                      prod["Nombre"]?.toString() ??
-                      prod["nombre_producto"]?.toString() ??
-                      "Desconocido";
-                  final codigo =
-                      prod["Codigo"]?.toString() ??
-                      prod["codigo"]?.toString() ??
-                      "";
-
-                  return ListTile(
-                    title: Text(
-                      nombre,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                ? Center(
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: Colors.red),
                     ),
-                    subtitle: Text("Código: $codigo"),
-                    trailing: const Icon(
-                      Icons.add_shopping_cart,
-                      color: Colors.blue,
+                  )
+                : lista.isEmpty
+                ? const Center(
+                    child: Text(
+                      "No se encontraron productos.\nIngresa un término de búsqueda.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey),
                     ),
-                    onTap: () => _abrirDialogoInteligente(prod),
-                  );
-                },
-              ),
-            ),
+                  )
+                : ListView.builder(
+                    itemCount: lista.length,
+                    itemBuilder: (context, index) {
+                      final prod = lista[index];
+                      final codigo =
+                          prod["Codigo"]?.toString() ??
+                          prod["codigo"]?.toString() ??
+                          "";
+                      final nombre =
+                          prod["Nombre"]?.toString() ??
+                          prod["nombre_producto"]?.toString() ??
+                          "Sin nombre";
+                      final stock = prod["Stock"] ?? prod["stock_actual"] ?? 0;
+                      final pvp = prod["PVP"] ?? prod["pvp"] ?? 0.0;
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ListTile(
+                          title: Text(
+                            nombre,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Código: $codigo | Stock: $stock | PVP: \$$pvp",
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          trailing: const Icon(
+                            Icons.add_shopping_cart,
+                            color: Colors.indigo,
+                          ),
+                          onTap: () => _abrirDialogoInteligente(prod),
+                        ),
+                      );
+                    },
+                  ),
+          ),
         ],
       ),
     );
