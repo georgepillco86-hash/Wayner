@@ -5,18 +5,17 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:provider/provider.dart';
 import '../../favoritos/providers/favorites_provider.dart';
 
 import '../services/pedidos_service.dart';
-import 'package:ferrotienda_flutter_proyecto/features/mermas/data/services/merma_service.dart';
+import 'package0/ferrotienda_flutter_proyecto/features/mermas/data/services/merma_service.dart';
 import 'package:ferrotienda_flutter_proyecto/features/mermas/presentation/screens/merma_screen.dart';
 import '../../../core/storage/session_storage.dart';
 import '../../saldos/presentation/widgets/kardex_flotante_dialog.dart';
-import '../../../screens/scanner/scanner_screen.dart';
+import '../../../screens/scanner/lector_codigo_screen.dart';
 
 class GenerarPedidoConsolidadoDialog extends StatefulWidget {
   final String proveedor;
@@ -587,7 +586,7 @@ class _GenerarPedidoConsolidadoDialogState
     try {
       final todosLosProveedores = await service.obtenerProveedores();
       if (!mounted) return;
-      Navigator.pop(context); // Cierra el loader
+      Navigator.pop(context);
 
       String provSeleccionado = "";
 
@@ -650,8 +649,8 @@ class _GenerarPedidoConsolidadoDialogState
           proveedor: provSeleccionado.trim(),
         );
         if (mounted) {
-          Navigator.pop(context); // Cierra loader
-          _cargarTodo(); // Recarga la lista principal
+          Navigator.pop(context);
+          _cargarTodo();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("✅ Producto asignado a $provSeleccionado")),
           );
@@ -714,7 +713,7 @@ class _GenerarPedidoConsolidadoDialogState
                       ),
                       tooltip: "Asignar a cualquier proveedor",
                       onPressed: () {
-                        Navigator.pop(context); // Cierra este modal
+                        Navigator.pop(context);
                         _asignarProveedorGlobal(pedidoId, itemId);
                       },
                     ),
@@ -2536,7 +2535,7 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ScannerScreen(
+        builder: (_) => LectorCodigoScreen(
           onDetect: (codigo) {
             _searchController.text = codigo;
             _buscar();
@@ -3367,7 +3366,7 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
         );
 
         if (mounted) {
-          Navigator.pop(context); // Cierra loader
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -3379,7 +3378,7 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
         }
       } catch (e) {
         if (mounted) {
-          Navigator.pop(context); // Cierra loader
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Error al agregar producto: $e"),
@@ -3402,315 +3401,80 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.90,
-      ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // CABECERA
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          hintText: "Buscar producto por código, nombre...",
-                          prefixIcon: const Icon(Icons.search),
-                          border: const OutlineInputBorder(),
-                          isDense: true,
-                          suffixIcon: IconButton(
-                            icon: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.blue,
-                            ),
-                            onPressed: _escanearCodigo,
-                          ),
-                        ),
-                        onSubmitted: (_) => _buscar(),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: "Buscar producto...",
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.qr_code_scanner),
+                        onPressed: _escanearCodigo,
                       ),
+                      border: const OutlineInputBorder(),
                     ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
-                      onPressed: _buscar,
-                      child: const Icon(Icons.send, size: 20),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                Autocomplete<String>(
-                  optionsBuilder: (TextEditingValue textValue) {
-                    final q = textValue.text.trim().toLowerCase();
-                    if (q.isEmpty) return marcasGlobales.take(20);
-                    return marcasGlobales.where(
-                      (m) => m.toLowerCase().contains(q),
-                    );
-                  },
-                  onSelected: (val) {
-                    _marcaController.text = val;
-                    setState(() {});
-                  },
-                  fieldViewBuilder: (context, controller, focus, onSubmitted) {
-                    if (controller.text != _marcaController.text &&
-                        !focus.hasFocus) {
-                      controller.text = _marcaController.text;
-                    }
-                    return TextField(
-                      controller: controller,
-                      focusNode: focus,
-                      decoration: InputDecoration(
-                        labelText: 'Refinar búsqueda opcional (Marca)',
-                        isDense: true,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.filter_alt_outlined),
-                        suffixIcon: controller.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  controller.clear();
-                                  _marcaController.clear();
-                                  setState(() {});
-                                },
-                              )
-                            : null,
-                      ),
-                      onChanged: (val) {
-                        _marcaController.text = val;
-                        setState(() {});
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-
-                Row(
-                  children: [
-                    const Text('Búsqueda Profunda (Kardex):'),
-                    Switch(
-                      value: busquedaProfunda,
-                      onChanged: (val) {
-                        setState(() => busquedaProfunda = val);
-                        if (_searchController.text.length >= 2) _buscar();
-                      },
-                    ),
-                  ],
-                ),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          labelText: 'Clase',
-                          isDense: true,
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.category_outlined),
-                        ),
-                        value: claseSeleccionada,
-                        items: clasesDisponibles
-                            .map(
-                              (c) => DropdownMenuItem(
-                                value: c,
-                                child: Row(
-                                  children: [
-                                    if (c == 'Mis favoritos')
-                                      const Icon(
-                                        Icons.star_rounded,
-                                        color: Colors.amber,
-                                        size: 20,
-                                      ),
-                                    if (c == 'Mis favoritos')
-                                      const SizedBox(width: 8),
-                                    Text(
-                                      c,
-                                      style: TextStyle(
-                                        fontWeight: c == 'Mis favoritos'
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (val) {
-                          setState(() => claseSeleccionada = val!);
-                          _buscar();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                if (esAdmin)
-                  Autocomplete<String>(
-                    optionsBuilder: (TextEditingValue textValue) {
-                      final q = textValue.text.trim().toLowerCase();
-                      if (q.isEmpty) return proveedores.take(20);
-                      return proveedores.where(
-                        (p) => p.toLowerCase().contains(q),
-                      );
-                    },
-                    onSelected: (val) {
-                      setState(() => proveedorSeleccionado = val);
-                      _buscar();
-                    },
-                    fieldViewBuilder:
-                        (context, controller, focus, onSubmitted) {
-                          return TextField(
-                            controller: controller,
-                            focusNode: focus,
-                            decoration: InputDecoration(
-                              labelText: 'Filtrar por proveedor',
-                              isDense: true,
-                              border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(
-                                Icons.local_shipping_outlined,
-                              ),
-                              suffixIcon: controller.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        controller.clear();
-                                        setState(
-                                          () => proveedorSeleccionado = null,
-                                        );
-                                        _buscar();
-                                      },
-                                    )
-                                  : null,
-                            ),
-                            onChanged: (val) {
-                              proveedorSeleccionado = val.trim();
-                            },
-                            onSubmitted: (val) {
-                              setState(
-                                () => proveedorSeleccionado = val.trim(),
-                              );
-                              _buscar();
-                            },
-                          );
-                        },
+                    onSubmitted: (_) => _buscar(),
                   ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filled(
+                  onPressed: _buscar,
+                  icon: const Icon(Icons.search),
+                ),
               ],
             ),
           ),
-          const Divider(height: 1),
 
-          // RESULTADOS LIGEROS
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                ? Center(
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  )
-                : currentList.isEmpty && _searchController.text.isNotEmpty
-                ? const Center(child: Text("No se encontraron resultados"))
-                : ListView.builder(
-                    itemCount: currentList.length,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
-                    ),
-                    itemBuilder: (context, index) {
-                      final prod = currentList[index];
-                      final nombre =
-                          prod["Nombre"] ??
-                          prod["nombre_producto"] ??
-                          "Desconocido";
-                      final codigo = prod["Codigo"] ?? prod["codigo"] ?? "";
-                      final stock = prod["Stock"] ?? prod["stock_actual"] ?? 0;
-                      final marca = prod["Marca"]?.toString().trim() ?? "-";
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: CircularProgressIndicator(),
+            ),
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          leading: const CircleAvatar(
-                            backgroundColor: Colors.blueGrey,
-                            child: Icon(
-                              Icons.inventory_2_outlined,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            nombre,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Cód: $codigo",
-                                  style: TextStyle(color: Colors.grey.shade700),
-                                ),
-                                Text(
-                                  "Stock: $stock",
-                                  style: TextStyle(
-                                    color: Colors.blueGrey.shade700,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "Marca: $marca",
-                                  style: const TextStyle(fontSize: 11),
-                                ),
-                              ],
-                            ),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(
-                              Icons.add_circle,
-                              color: Colors.green,
-                              size: 36,
-                            ),
-                            onPressed: () => _abrirDialogoInteligente(prod),
-                          ),
-                          isThreeLine: true,
-                          onTap: () => _abrirDialogoInteligente(prod),
-                        ),
-                      );
-                    },
-                  ),
-          ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(_error!, style: const TextStyle(color: Colors.red)),
+            ),
+
+          if (!_isLoading && currentList.isNotEmpty)
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: currentList.length,
+                itemBuilder: (context, index) {
+                  final prod = currentList[index];
+                  final nombre =
+                      prod["Nombre"]?.toString() ??
+                      prod["nombre_producto"]?.toString() ??
+                      "Desconocido";
+                  final codigo =
+                      prod["Codigo"]?.toString() ??
+                      prod["codigo"]?.toString() ??
+                      "";
+
+                  return ListTile(
+                    title: Text(
+                      nombre,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text("Código: $codigo"),
+                    trailing: const Icon(
+                      Icons.add_shopping_cart,
+                      color: Colors.blue,
+                    ),
+                    onTap: () => _abrirDialogoInteligente(prod),
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );

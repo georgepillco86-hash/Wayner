@@ -1,10 +1,8 @@
 name: ferrotienda_flutter_proyecto
 description: "A new Flutter project."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
   sdk: ^3.10.4
@@ -33,8 +31,7 @@ dependencies:
   path_provider: ^2.1.6
   share_plus: ^13.3.0
   url_launcher: ^6.3.2
-  web_socket_channel: ^3.0.0  # 🔥 NUEVA DEPENDENCIA AÑADIDA PARA EL RPA
-  flutter_barcode_scanner: ^2.0.0
+  web_socket_channel: ^3.0.0  
   signature: ^5.4.0
   printing: ^5.15.0
   barcode_widget: ^2.0.4
@@ -53,11 +50,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/wyner_logo.png
-    - assets/sounds/ # 🔥 CARPETA DE AUDIOS REGISTRADA AQUÍ
-
-# 🔥 AQUÍ ESTÁ LA SOLUCIÓN PARA EL ESCÁNER
-dependency_overrides:
-  flutter_barcode_scanner:
-    git:
-      url: https://github.com/decodevM/flutter_barcode_scanner.git
-      ref: flutter-3.29
+    - assets/sounds/

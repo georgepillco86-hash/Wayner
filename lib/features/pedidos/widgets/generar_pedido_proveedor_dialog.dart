@@ -3285,120 +3285,121 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
                         fontSize: 11,
                       ),
                     ),
-                    const SizedBox(height: 8),
-
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: usarProphet
-                            ? Colors.amber.shade50
-                            : Colors.purple.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
+                    if (ia7 > 0 || ia15 > 0 || ia30 > 0 || alertaProphet)
+                      Container(
+                        margin: const EdgeInsets.only(top: 12, bottom: 4),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
                           color: usarProphet
-                              ? Colors.amber.shade400
-                              : Colors.purple.shade200,
+                              ? Colors.amber.shade50
+                              : Colors.purple.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: usarProphet
+                                ? Colors.amber.shade400
+                                : Colors.purple.shade200,
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      usarProphet
-                                          ? Icons.insights
-                                          : Icons.auto_awesome,
-                                      color: usarProphet
-                                          ? Colors.amber.shade800
-                                          : Colors.purple,
-                                      size: 14,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    children: [
+                                      Icon(
                                         usarProphet
-                                            ? "🔮 Prophet (Feriados):"
-                                            : "✨ Sugerencia Inteligente:",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: usarProphet
-                                              ? Colors.amber.shade900
-                                              : Colors.purple.shade800,
-                                          fontSize: 11,
+                                            ? Icons.insights
+                                            : Icons.auto_awesome,
+                                        color: usarProphet
+                                            ? Colors.amber.shade800
+                                            : Colors.purple,
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          usarProphet
+                                              ? "🔮 Prophet (Temporada Alta):"
+                                              : "✨ Sugerencia Inteligente:",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: usarProphet
+                                                ? Colors.amber.shade900
+                                                : Colors.purple.shade800,
+                                            fontSize: 11,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (alertaProphet)
+                                  FilledButton.icon(
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: usarProphet
+                                          ? Colors.grey
+                                          : Colors.amber.shade600,
+                                      visualDensity: VisualDensity.compact,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                      minimumSize: const Size(0, 26),
+                                    ),
+                                    icon: Icon(
+                                      usarProphet
+                                          ? Icons.close
+                                          : Icons.warning_amber_rounded,
+                                      size: 12,
+                                    ),
+                                    label: Text(
+                                      usarProphet
+                                          ? "Apagar"
+                                          : "$eventoProximo en ${diasParaEvento}d",
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ],
+                                    onPressed: () {
+                                      setDialogState(() {
+                                        usarProphet = !usarProphet;
+                                      });
+                                    },
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildIABadge(
+                                  "7 Días",
+                                  usarProphet ? prophet7 : ia7,
+                                  cantController,
+                                  () => setDialogState(() {}),
                                 ),
-                              ),
-                              if (alertaProphet)
-                                FilledButton.icon(
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: usarProphet
-                                        ? Colors.grey
-                                        : Colors.amber.shade600,
-                                    visualDensity: VisualDensity.compact,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    minimumSize: const Size(0, 26),
-                                  ),
-                                  icon: Icon(
-                                    usarProphet
-                                        ? Icons.close
-                                        : Icons.warning_amber_rounded,
-                                    size: 12,
-                                  ),
-                                  label: Text(
-                                    usarProphet
-                                        ? "Apagar"
-                                        : "$eventoProximo en ${diasParaEvento}d",
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  onPressed: () => setDialogState(
-                                    () => usarProphet = !usarProphet,
-                                  ),
+                                _buildIABadge(
+                                  "15 Días",
+                                  usarProphet ? prophet15 : ia15,
+                                  cantController,
+                                  () => setDialogState(() {}),
                                 ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildIABadge(
-                                "7 Días",
-                                usarProphet ? prophet7 : ia7,
-                                cantController,
-                                () => setDialogState(() {}),
-                              ),
-                              _buildIABadge(
-                                "15 Días",
-                                usarProphet ? prophet15 : ia15,
-                                cantController,
-                                () => setDialogState(() {}),
-                              ),
-                              _buildIABadge(
-                                "1 Mes",
-                                usarProphet ? prophet30 : ia30,
-                                cantController,
-                                () => setDialogState(() {}),
-                              ),
-                            ],
-                          ),
-                        ],
+                                _buildIABadge(
+                                  "1 Mes",
+                                  usarProphet ? prophet30 : ia30,
+                                  cantController,
+                                  () => setDialogState(() {}),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-
+                    const Divider(height: 12),
                     Text(
                       txtMejorCosto,
                       style: const TextStyle(
@@ -3416,20 +3417,26 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Último Costo con este Prov: \$${ultimoCosto.toStringAsFixed(4)}",
+                      style: TextStyle(
+                        color: Colors.blue.shade700,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
+                    ),
                   ],
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context, false),
-                  child: const Text(
-                    "Cancelar",
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                  child: const Text("Cancelar"),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(context, true),
-                  child: const Text("Agregar"),
+                  child: const Text("Añadir al Pedido"),
                 ),
               ],
             );
@@ -3439,7 +3446,8 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
     );
 
     if (confirmar == true) {
-      final cantidad = double.tryParse(cantController.text) ?? 1;
+      final double cant = double.tryParse(cantController.text) ?? 1.0;
+
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -3450,28 +3458,25 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
         await _pedidosService.agregarItemPedido(
           pedidoId: widget.pedidoId,
           codigoProducto: codigo,
-          cantidad: cantidad,
+          cantidad: cant,
           unidad: unidadSeleccionada,
-          tipoDestino: "VENTA",
         );
-
         if (mounted) {
-          Navigator.pop(context); // Cierra loader
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                "✅ Producto agregado: $cantidad $unidadSeleccionada",
-              ),
+            const SnackBar(
+              content: Text("✅ Producto añadido al pedido"),
+              backgroundColor: Colors.green,
             ),
           );
           widget.onItemAdded();
         }
       } catch (e) {
         if (mounted) {
-          Navigator.pop(context); // Cierra loader
+          Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Error al agregar producto: $e"),
+              content: Text("Error al añadir: $e"),
               backgroundColor: Colors.red,
             ),
           );
@@ -3482,231 +3487,119 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final currentList = resultadosFiltrados;
-
     return Container(
-      padding: EdgeInsets.only(bottom: bottomInset),
+      height: MediaQuery.of(context).size.height * 0.9,
+      padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.90,
-      ),
       child: Column(
         children: [
-          // CABECERA
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Buscar Productos",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    labelText: "Buscar por nombre o código",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    prefixIcon: const Icon(Icons.search),
+                  ),
+                  onSubmitted: (_) => _buscar(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: _escanearCodigo,
+                icon: const Icon(
+                  Icons.qr_code_scanner,
+                  color: Colors.blue,
+                  size: 32,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          hintText: "Buscar producto por código, nombre...",
-                          prefixIcon: const Icon(Icons.search),
-                          border: const OutlineInputBorder(),
-                          isDense: true,
-                          suffixIcon: IconButton(
-                            icon: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.blue,
-                            ),
-                            onPressed: _escanearCodigo,
-                          ),
-                        ),
-                        onSubmitted: (_) => _buscar(),
-                      ),
+                if (esAdmin) ...[
+                  DropdownButton<String>(
+                    hint: const Text(
+                      "Proveedor",
+                      style: TextStyle(fontSize: 12),
                     ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
+                    value: proveedorSeleccionado,
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text("Todos", style: TextStyle(fontSize: 12)),
+                      ),
+                      ...proveedores.map(
+                        (p) => DropdownMenuItem(
+                          value: p,
+                          child: Text(p, style: const TextStyle(fontSize: 12)),
                         ),
                       ),
-                      onPressed: _buscar,
-                      child: const Icon(Icons.send, size: 20),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                Autocomplete<String>(
-                  optionsBuilder: (TextEditingValue textValue) {
-                    final q = textValue.text.trim().toLowerCase();
-                    if (q.isEmpty) return marcasGlobales.take(20);
-                    return marcasGlobales.where(
-                      (m) => m.toLowerCase().contains(q),
-                    );
-                  },
-                  onSelected: (val) {
-                    _marcaController.text = val;
-                    setState(() {});
-                  },
-                  fieldViewBuilder: (context, controller, focus, onSubmitted) {
-                    if (controller.text != _marcaController.text &&
-                        !focus.hasFocus) {
-                      controller.text = _marcaController.text;
-                    }
-                    return TextField(
-                      controller: controller,
-                      focusNode: focus,
-                      decoration: InputDecoration(
-                        labelText: 'Refinar búsqueda opcional (Marca)',
-                        isDense: true,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.filter_alt_outlined),
-                        suffixIcon: controller.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  controller.clear();
-                                  _marcaController.clear();
-                                  setState(() {});
-                                },
-                              )
-                            : null,
-                      ),
-                      onChanged: (val) {
-                        _marcaController.text = val;
-                        setState(() {});
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
-
-                Row(
-                  children: [
-                    const Text('Búsqueda Profunda (Kardex):'),
-                    Switch(
-                      value: busquedaProfunda,
-                      onChanged: (val) {
-                        setState(() => busquedaProfunda = val);
-                        if (_searchController.text.length >= 2) _buscar();
-                      },
-                    ),
-                  ],
-                ),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          labelText: 'Clase',
-                          isDense: true,
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.category_outlined),
-                        ),
-                        value: claseSeleccionada,
-                        items: clasesDisponibles
-                            .map(
-                              (c) => DropdownMenuItem(
-                                value: c,
-                                child: Row(
-                                  children: [
-                                    if (c == 'Mis favoritos')
-                                      const Icon(
-                                        Icons.star_rounded,
-                                        color: Colors.amber,
-                                        size: 20,
-                                      ),
-                                    if (c == 'Mis favoritos')
-                                      const SizedBox(width: 8),
-                                    Text(
-                                      c,
-                                      style: TextStyle(
-                                        fontWeight: c == 'Mis favoritos'
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (val) {
-                          setState(() => claseSeleccionada = val!);
-                          _buscar();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                if (esAdmin)
-                  Autocomplete<String>(
-                    optionsBuilder: (TextEditingValue textValue) {
-                      final q = textValue.text.trim().toLowerCase();
-                      if (q.isEmpty) return proveedores.take(20);
-                      return proveedores.where(
-                        (p) => p.toLowerCase().contains(q),
-                      );
-                    },
-                    onSelected: (val) {
+                    ],
+                    onChanged: (val) {
                       setState(() => proveedorSeleccionado = val);
                       _buscar();
                     },
-                    fieldViewBuilder:
-                        (context, controller, focus, onSubmitted) {
-                          return TextField(
-                            controller: controller,
-                            focusNode: focus,
-                            decoration: InputDecoration(
-                              labelText: 'Filtrar por proveedor',
-                              isDense: true,
-                              border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(
-                                Icons.local_shipping_outlined,
-                              ),
-                              suffixIcon: controller.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        controller.clear();
-                                        setState(
-                                          () => proveedorSeleccionado = null,
-                                        );
-                                        _buscar();
-                                      },
-                                    )
-                                  : null,
-                            ),
-                            onChanged: (val) {
-                              proveedorSeleccionado = val.trim();
-                            },
-                            onSubmitted: (val) {
-                              setState(
-                                () => proveedorSeleccionado = val.trim(),
-                              );
-                              _buscar();
-                            },
-                          );
-                        },
                   ),
+                  const SizedBox(width: 12),
+                ],
+                DropdownButton<String>(
+                  value: claseSeleccionada,
+                  items: clasesDisponibles
+                      .map(
+                        (c) => DropdownMenuItem(
+                          value: c,
+                          child: Text(c, style: const TextStyle(fontSize: 12)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => claseSeleccionada = val);
+                      _buscar();
+                    }
+                  },
+                ),
+                const SizedBox(width: 12),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: busquedaProfunda,
+                      onChanged: (val) {
+                        setState(() => busquedaProfunda = val ?? false);
+                      },
+                    ),
+                    const Text("Kardex", style: TextStyle(fontSize: 12)),
+                  ],
+                ),
               ],
             ),
           ),
-          const Divider(height: 1),
-
-          // RESULTADOS LIGEROS
+          const Divider(),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -3715,46 +3608,37 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
                     child: Text(
                       _error!,
                       style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
                     ),
                   )
-                : currentList.isEmpty && _searchController.text.isNotEmpty
-                ? const Center(child: Text("No se encontraron resultados"))
-                : ListView.builder(
-                    itemCount: currentList.length,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
+                : resultadosFiltrados.isEmpty
+                ? const Center(
+                    child: Text(
+                      "No hay resultados.\nEscribe un término y presiona Enter o escanea un código.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey),
                     ),
+                  )
+                : ListView.builder(
+                    itemCount: resultadosFiltrados.length,
                     itemBuilder: (context, index) {
-                      final prod = currentList[index];
+                      final item = resultadosFiltrados[index];
                       final nombre =
-                          prod["Nombre"] ??
-                          prod["nombre_producto"] ??
-                          "Desconocido";
-                      final codigo = prod["Codigo"] ?? prod["codigo"] ?? "";
-                      final stock = prod["Stock"] ?? prod["stock_actual"] ?? 0;
-                      final marca = prod["Marca"]?.toString().trim() ?? "-";
+                          item["Nombre"]?.toString() ??
+                          item["nombre_producto"]?.toString() ??
+                          "Sin nombre";
+                      final codigo =
+                          item["Codigo"]?.toString() ??
+                          item["codigo"]?.toString() ??
+                          "";
+                      final stock = item["Stock"] ?? item["stock_actual"] ?? 0;
 
                       return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: Colors.grey.shade300),
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 2,
                         ),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          leading: const CircleAvatar(
-                            backgroundColor: Colors.blueGrey,
-                            child: Icon(
-                              Icons.inventory_2_outlined,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
                           title: Text(
                             nombre,
                             style: const TextStyle(
@@ -3762,39 +3646,19 @@ class _BuscadorProductosSheetState extends State<_BuscadorProductosSheet> {
                               fontSize: 13,
                             ),
                           ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Cód: $codigo",
-                                  style: TextStyle(color: Colors.grey.shade700),
-                                ),
-                                Text(
-                                  "Stock: $stock",
-                                  style: TextStyle(
-                                    color: Colors.blueGrey.shade700,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "Marca: $marca",
-                                  style: const TextStyle(fontSize: 11),
-                                ),
-                              ],
+                          subtitle: Text(
+                            "Cód: $codigo | Stock: $stock",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.blueGrey,
                             ),
                           ),
-                          trailing: IconButton(
-                            icon: const Icon(
-                              Icons.add_circle,
-                              color: Colors.green,
-                              size: 36,
-                            ),
-                            onPressed: () => _abrirDialogoInteligente(prod),
+                          trailing: const Icon(
+                            Icons.add_circle,
+                            color: Colors.green,
+                            size: 30,
                           ),
-                          isThreeLine: true,
-                          onTap: () => _abrirDialogoInteligente(prod),
+                          onTap: () => _abrirDialogoInteligente(item),
                         ),
                       );
                     },
