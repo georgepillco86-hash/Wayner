@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
+// import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -65,50 +65,52 @@ Future<void> _initNativeServices(AuthUser? user) async {
     Permission.location,
   ].request();
 
-  // Inicialización de OneSignal
-  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-  OneSignal.initialize("f4a9679d-f7e7-47bf-8ad4-c633fa0a439d");
-  OneSignal.Notifications.requestPermission(true);
+  // ==========================================================
+  // Inicialización de OneSignal (Comentada)
+  // ==========================================================
+  // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // OneSignal.initialize("f4a9679d-f7e7-47bf-8ad4-c633fa0a439d");
+  // OneSignal.Notifications.requestPermission(true);
 
-  // Identificación del usuario en OneSignal para envíos segmentados
-  if (user != null) {
-    OneSignal.login(user.nombreUsuario);
-  }
+  // // Identificación del usuario en OneSignal para envíos segmentados
+  // if (user != null) {
+  //   OneSignal.login(user.nombreUsuario);
+  // }
 
-  // Manejo de Deep Links y clics en notificaciones
-  OneSignal.Notifications.addClickListener((event) {
-    final data = event.notification.additionalData;
+  // // Manejo de Deep Links y clics en notificaciones
+  // OneSignal.Notifications.addClickListener((event) {
+  //   final data = event.notification.additionalData;
 
-    if (data != null) {
-      final String accion = data['accion'] ?? '';
+  //   if (data != null) {
+  //     final String accion = data['accion'] ?? '';
 
-      // Redirección 1: Diálogo de aprobación de pedido
-      if ((accion == 'APROBAR_PEDIDO' || accion == '') &&
-          data.containsKey('pedido_id')) {
-        final int pedidoId = data['pedido_id'];
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (_) => GenerarPedidoProveedorDialog(pedidoId: pedidoId),
-          ),
-        );
-      }
-      // Redirección 2: Hacer pedido cargando el proveedor específico
-      else if (accion == 'HACER_PEDIDO' && data.containsKey('proveedor')) {
-        final String proveedor = data['proveedor'];
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(
-            builder: (_) => PedidoBusquedaScreen(proveedorInicial: proveedor),
-          ),
-        );
-      }
-      // Redirección 3: Pantalla de notificaciones / alertas
-      else if (accion == 'VER_NOTIFICACIONES') {
-        navigatorKey.currentState?.push(
-          MaterialPageRoute(builder: (_) => const NotificacionesScreen()),
-        );
-      }
-    }
-  });
+  //     // Redirección 1: Diálogo de aprobación de pedido
+  //     if ((accion == 'APROBAR_PEDIDO' || accion == '') &&
+  //         data.containsKey('pedido_id')) {
+  //       final int pedidoId = data['pedido_id'];
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(
+  //           builder: (_) => GenerarPedidoProveedorDialog(pedidoId: pedidoId),
+  //         ),
+  //       );
+  //     }
+  //     // Redirección 2: Hacer pedido cargando el proveedor específico
+  //     else if (accion == 'HACER_PEDIDO' && data.containsKey('proveedor')) {
+  //       final String proveedor = data['proveedor'];
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(
+  //           builder: (_) => PedidoBusquedaScreen(proveedorInicial: proveedor),
+  //         ),
+  //       );
+  //     }
+  //     // Redirección 3: Pantalla de notificaciones / alertas
+  //     else if (accion == 'VER_NOTIFICACIONES') {
+  //       navigatorKey.currentState?.push(
+  //         MaterialPageRoute(builder: (_) => const NotificacionesScreen()),
+  //       );
+  //     }
+  //   }
+  // });
 }
 
 class FerrotiendaApp extends StatefulWidget {
